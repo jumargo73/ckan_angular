@@ -1,0 +1,34 @@
+/* Este es el contenedor donde tienes el menú y el router-outlet */
+.main-header {
+  display: flex;
+  flex-direction: column; /* Esto pone el menú arriba y el contenido abajo */
+  width: 100%;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* Estilo para que el menú se vea como una barra de navegación real */
+.nav-menu {
+  display: flex;
+  gap: 30px;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 15px;
+  width: 100%;
+}
+
+.nav-menu a {
+  text-decoration: none;
+  color: #555;
+  font-weight: 600;
+  font-size: 1.1rem;
+  transition: color 0.3s;
+}
+
+.nav-menu a:hover, .nav-menu a.active {
+  color: #007bff; /* Color azul para destacar */
+}
+
+router-outlet + * {
+  display: block;
+  width: 100%;
+}

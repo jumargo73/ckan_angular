@@ -1,0 +1,13 @@
+<div *ngIf="dataset">
+  <h1>{{ dataset.title }}</h1>
+  <p>{{ dataset.notes }}</p>
+  
+  <h3>Recursos:</h3>
+  <ul>
+    <!-- Aquí recorres 'resources', que es lo que tiene un dataset de CKAN -->
+    <li *ngFor="let res of dataset.resources">
+      {{ res.name }} - {{ res.format }}
+    </li>
+  </ul>
+</div>
+
