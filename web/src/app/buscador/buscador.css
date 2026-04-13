@@ -1,155 +1,77 @@
-/* Contenedor Principal: Layout Moderno */
+/* Contenedor principal: usa Flexbox para poner lado a lado */
 .layout-busqueda {
-  display: grid;
-  grid-template-columns: 320px 1fr;
-  gap: 2rem;
+  display: flex;
+  gap: 30px;
   max-width: 1200px;
-  margin: 2rem auto;
-  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-  color: #334155;
-  padding: 0 1rem;
+  margin: 20px auto;
+  align-items: flex-start;
 }
 
-/* Columna Izquierda (Filtros/Buscador) */
+/* Columna Izquierda (Buscador) */
 .sidebar-busqueda {
-  background: #ffffff;
-  padding: 1.5rem;
-  border-radius: 12px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  height: fit-content;
-  position: sticky;
-  top: 1rem;
+  flex: 0 0 300px; /* Ancho fijo de 300px */
+  background: #fff;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.05);
 }
 
-.sidebar-busqueda h3 {
-  font-size: 1.25rem;
-  margin-bottom: 1.5rem;
-  color: #1e293b;
-  font-weight: 700;
-}
-
-/* Input de Búsqueda Estilizado */
+/* Contenedor del input con icono */
 .buscador-angular-contenedor {
   position: relative;
-  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
 }
 
 .search-icon {
   position: absolute;
   left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #94a3b8;
+  color: #0056b3;
 }
 
 .mi-input-angular {
   width: 100%;
-  padding: 12px 12px 12px 40px;
-  border: 2px solid #e2e8f0;
+  padding: 10px 10px 10px 35px;
+  border: 2px solid #0056b3;
   border-radius: 8px;
-  font-size: 0.95rem;
-  transition: all 0.3s ease;
-  box-sizing: border-box;
-}
-
-.mi-input-angular:focus {
   outline: none;
-  border-color: #3b82f6;
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
 }
 
 /* Columna Derecha (Resultados) */
 .resultados-busqueda {
-  min-height: 400px;
+  flex: 1; /* Ocupa el resto del espacio */
 }
 
-/* Cards de Datasets */
 .dataset-item .card {
-  background: white;
-  border: 1px solid #e2e8f0 !important; /* Sobrescribe el inline */
-  border-radius: 10px;
-  padding: 1.5rem !important;
-  margin-bottom: 1.5rem !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: #fff;
+  border: 1px solid #eef2f7 !important;
+  border-radius: 12px;
+  padding: 25px !important;
+  transition: transform 0.2s;
 }
 
 .dataset-item .card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
+/* Estilo de los enlaces y botones */
 .dataset-item h4 a {
-  color: #2563eb;
+  color: #2c5af2;
   text-decoration: none;
-  font-size: 1.2rem;
-  font-weight: 600;
+  font-weight: bold;
 }
 
-.dataset-item h4 a:hover {
-  text-decoration: underline;
-}
-
-.notes {
-  font-size: 0.9rem;
-  color: #64748b;
-  line-height: 1.5;
-  margin: 0.75rem 0;
-}
-
-/* Etiquetas y Metadatos */
-.metadata {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin-top: 1rem;
-  font-size: 0.85rem;
-}
-
-.label-info {
-  background: #eff6ff;
-  color: #1d4ed8;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-weight: 500;
-}
-
-/* Botón de Acción */
 .card-footer-actions {
-  margin-top: 1.25rem;
-  border-top: 1px solid #f1f5f9;
-  padding-top: 1rem;
   text-align: right;
+  margin-top: 15px;
 }
 
 .btn-detalles {
-  display: inline-block;
-  color: #3b82f6;
+  color: #2c5af2;
   text-decoration: none;
-  font-weight: 600;
   font-size: 0.9rem;
-  transition: gap 0.2s;
 }
 
-.btn-detalles span {
-  transition: margin-left 0.2s;
-}
-
-.btn-detalles:hover span {
-  margin-left: 5px;
-}
-
-/* Estados (Cargando, Vacío, Alertas) */
-.text-muted { color: #94a3b8; font-size: 0.85rem; }
-.text-info { color: #3b82f6; font-weight: 500; }
-
-.alert-warning {
-  background: #fffbeb;
-  border: 1px solid #fef3c7;
-  color: #92400e;
-  padding: 1rem;
-  border-radius: 8px;
-  text-align: center;
-}
 
 /* Responsive */
 @media (max-width: 768px) {

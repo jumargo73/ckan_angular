@@ -41,7 +41,7 @@
 		  
 		  <div class="info-asociacion">
 			<div class="dato">
-			  <span class="label">Total Datasets:</span>
+			  <span class="label">Total Dataset:</span>
 			  <span class="value">{{ estadisticaGrupos.total }}</span>
 			</div>
 			<div class="dato">
@@ -52,7 +52,7 @@
 			  <span class="label text-danger">Sin Temática:</span>
 			  <span class="value" 
 				style="cursor: pointer; text-decoration: underline;" 
-				(click)="verListadoHuerfanos()"> <!-- Nombre sincronizado -->
+				(click)="verListadoHuerfanos_api()"> <!-- Nombre sincronizado -->
 				{{ estadisticaGrupos.sinAsociar }}
 			  </span>
 			</div>
@@ -161,7 +161,36 @@
 			  </div>
 			</div>
 		</div>	
-	</div>
+	</div>	
 </div>
+<div class="row mt-4">
+	<div class="col-md-4 mb-4" *ngFor="let tema of stats_tematicas">
+		<div class="contenedor-tematicas">
+			<div class="card card-tematica shadow-sm h-100">
+				<div class="card-icon">
+				<!-- Puedes usar una lógica para cambiar el icono según el título -->
+				<i class="fas" [ngClass]="{
+					'fa-graduation-cap': tema.titulo === 'Educación',
+					'fa-heartbeat': tema.titulo === 'Salud',
+					'fa-folder': tema.titulo !== 'Salud' && tema.titulo !== 'Educación'
+				}"></i>
+				</div>
+				
+				<div class="card-body">
+				<h4>{{ tema.titulo }}</h4>
+				<div class="stats-pills">
+					<span class="badge-ds">{{ tema.total_datasets }} Datasets</span>
+					<span class="badge-res">{{ tema.total_recursos }} Recursos</span>
+				</div>
+				</div>
+
+				<a [href]="tema.url_ver_mas" class="btn-ver-mas" target="_blank" title="Ver recursos de {{tema.titulo}}">
+				<i class="fas fa-external-link-alt"></i>
+				</a>
+			</div>
+		</div>
+	</div>
+</div>	
+
 
 

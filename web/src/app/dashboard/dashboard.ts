@@ -3,7 +3,7 @@ import { CommonModule,SlicePipe } from '@angular/common';
 import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
 import { forkJoin } from 'rxjs';
 
-
+console.log("0. Archivo dashboard.ts leído por el navegador"); // <-- Al principio del todo
 @Component({
   selector: 'app-dashboard',
   standalone: true,
@@ -23,29 +23,22 @@ export class DashboardComponent implements OnInit		 {
 	public cargando: boolean = false;
 	private timeout: any;
 	public formatosGrafico: any[] = [];
+	public formatosGrupos : any[] = [];
+	public stats_tematicas: any[] = [];
 	public topGrupos: any[] = [];
 	public topOrganizaciones : any[] = [];
 	public recursosPorOrg: any[] = [];
 	public total =0;
+	public debugData: any; 
 	
 	
-	private intervalo: any;
-	private readonly API_BASE = '/api/3/action/package_search';
-	private readonly CKAN_TOKEN = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiJ0OFJHcGxncnBMQ0UwZnFQU0d6OW9OYm1mUWlDejY0YU14S0p5cXRkN0RrIiwiaWF0IjoxNzc1NTIwNTU2fQ.gacCfUh6iJ1B-V1twX36RObHxU7vZUZwTqrHA7jF9VE';
+	private intervalo: any;	
 	stats: any = null; 
 	
 	public resultadosHuerfanos: any[] = []; // Usa una variable específica para no mezclar
     public viendoHuerfanos: boolean = false;
 	
-	constructor(private http: HttpClient,private zone: NgZone, private cdr: ChangeDetectorRef) {
-		const win = (window as any);
-		  if (win.jQuery && !win.jQuery.fn.click) {
-			win.jQuery.fn.click = function(handler: any) {
-			  return this.on('click', handler);
-			};
-		  }
-		
-	}
+	constructor(private http: HttpClient,private zone: NgZone, private cdr: ChangeDetectorRef) {}
   
 	public metricas = {
 	  totalDatasets: 0,
@@ -59,18 +52,16 @@ export class DashboardComponent implements OnInit		 {
 	  porcentajePublico: 0
 	};
 	
-	ngOnInit() {
-		this.obtenerMetricasGlobales();
-		// 2. Ejecutamos el intervalo fuera de Angular para evitar conflictos con CKAN
-		this.zone.runOutsideAngular(() => {
-		    this.intervalo = setInterval(() => {
-			  // 3. Volvemos a entrar a la zona solo para pedir los datos y refrescar
-			  this.zone.run(() => {
-				this.obtenerMetricasGlobales();
-			  });
-			}, 30000); // 30 segundos
-		});
+	ngOnInit() { // <--- Aquí es donde debe ir tu bloque try/catch
+		console.log("¡DashboardComponent Activo!"); 
+		try {
+			this.obtenerMetricasGlobales_api();
+			this.iniciarIntervalo();
+		} catch (e) {
+			console.error("Error en la inicialización:", e);
+		}
 	}
+
 	
 	ngOnDestroy() {
 	  if (this.intervalo) {
@@ -94,72 +85,19 @@ export class DashboardComponent implements OnInit		 {
 		});
 	  });
 	}
-	
-	obtenerMetricasGlobalesold() {
-	  this.cargando = true;
-	  const headers = new HttpHeaders({ 'Authorization': this.CKAN_TOKEN });
 
-	  // Petición de Búsqueda General (Estadísticas)
-	  const paramsSearch = new HttpParams()
-		.set('q', '*:*')
-		.set('include_private', 'true')
-		.set('rows', '0') // <--- Cambiado a 0: Dashboard vuela porque no descarga datasets
-		.set('facet', 'true')
-		.set('facet.field', '["organization","groups","res_format","capacity"]');
-
-	  // Petición específica para Huérfanos (La que hablamos antes)
-	  const paramsHuerfanos = new HttpParams()
-		.set('q', '*:*')
-		.set('fq', '-groups:[* TO *]')
-		.set('include_private', 'true')
-		.set('rows', '0');
-
-	  forkJoin({
-		stats: this.http.get<any>(this.API_BASE, { headers, params: paramsSearch }),
-		huerfanos: this.http.get<any>(this.API_BASE, { headers, params: paramsHuerfanos }),
-		grupos: this.http.get<any>('/api/3/action/group_list'),
-		orgs: this.http.get<any>('/api/3/action/organization_list')
-	  }).subscribe({
-		next: (data) => {
-		  const res = data.stats;
-		  if (res.success) {
-			this.totales.datasets = res.result.count;
-			this.totales.huerfanos = data.huerfanos.result.count; // <--- Dato real exacto
-
-			// Procesar Facetas (Formatos y Orgs)
-			this.prepararGraficoFormatos(res.result.search_facets.res_format?.items || []);
-			this.prepararGraficoOrganizaciones(res.result.search_facets.organization?.items || []);
-
-			// Visibilidad (Público/Privado)
-			const cap = res.result.search_facets.capacity?.items || [];
-			this.privacidad.privados = cap.find((i: any) => i.name === 'private')?.count || 0;
-			this.privacidad.publicos = this.totales.datasets - this.privacidad.privados;
-			this.privacidad.porcentajePublico = this.totales.datasets > 0 ? (this.privacidad.publicos / this.totales.datasets) * 100 : 0;
-			
-			
-			// Procesar Salud de Grupos
-			const itemsGrupos = res.result.search_facets.groups?.items || [];
-			this.estadisticaGrupos.total = res.result.count;
-			this.estadisticaGrupos.asociados = itemsGrupos.reduce((acc: number, item: any) => acc + item.count, 0);
-			this.estadisticaGrupos.sinAsociar = this.estadisticaGrupos.total - this.estadisticaGrupos.asociados;
-			this.estadisticaGrupos.porcentaje = this.totales.datasets > 0 ? (this.estadisticaGrupos.asociados / this.totales.datasets) * 100 : 0;
-		  }
-
-		  if (data.grupos.success) this.totales.tematicas = data.grupos.result.length;
-		  if (data.orgs.success) this.totales.organizaciones = data.orgs.result.length;
-
-		  this.cargando = false;
-		  this.cdr.detectChanges();
-		},
-		error: (err) => {
-		  console.error('Error en Dashboard:', err);
-		  this.cargando = false;
-		}
-	  });
+	private iniciarIntervalo() {
+		this.zone.runOutsideAngular(() => {
+			this.intervalo = setInterval(() => {
+				this.zone.run(() => {
+					this.obtenerMetricasGlobales_api();
+				});
+			}, 30000); 
+		});
 	}
+
 	
-	
-	obtenerMetricasGlobales() {
+	obtenerMetricasGlobales_api() {
 	  this.cargando = true;
 	  
 	  // Ahora apuntamos a tu nuevo endpoint único
@@ -168,23 +106,45 @@ export class DashboardComponent implements OnInit		 {
 	  // Ya no necesitas params complejos, el backend ya sabe qué contar
 	  this.http.get<any>(url).subscribe({
 		next: (response) => {
+			console.log("--- CHEQUEO DE API ---");
+			console.table("response:",response); // Mira si esto tiene filas
+            
 		  // Si tu backend devuelve el objeto directamente
 		  if (response) {
+
 			this.stats = response; // Aquí ya tienes huerfanos, privados, etc.
-			
+			console.table("this.stats:",this.stats); 
 			this.totales.datasets=this.stats.total_datasets
 			this.totales.tematicas=this.stats.total_grupos
 			this.totales.organizaciones=this.stats.total_orgs
 			
 			this.privacidad.privados=this.stats.privados
 			this.privacidad.publicos = this.totales.datasets - this.privacidad.privados;
+			this.privacidad.porcentajePublico=this.stats.total_datasets > 0 ? (this.privacidad.publicos / this.stats.total_datasets) * 100 : 0
 			
 			this.totales.huerfanos = this.stats.huerfanos
-			
+
+			if (this.stats.organizacion_raw) {
+				console.table("organizacion_raw:",this.stats.organizacion_raw); 
+  			    this.prepararGraficoOrganizaciones_api(this.stats.organizacion_raw);
+			}
+
+			if (this.stats.grupos_raw) {
+				console.table("grupos_raw:",this.stats.grupos_raw); 
+  			    this.prepararGraficoGrupos_api(this.stats.grupos_raw);
+			}
+
 			// Si aún usas las funciones de gráficos, les pasas la data limpia
 			if (this.stats.formatos_raw) {
-			  this.prepararGraficoFormatos(this.stats.formatos_raw);
+			  console.table("formatos_raw:",this.stats.formatos_raw); 	
+			  this.prepararGraficoFormatos_api(this.stats.formatos_raw);
 			}
+
+			if (this.stats.stats_tematicas) {
+			  console.table("stats_tematicas:",this.stats.stats_tematicas); 	
+			  this.prepararGraficoGruposResource_api(this.stats.stats_tematicas);
+			}
+
 		  }
 		  this.cargando = false;
 		  this.cdr.detectChanges();
@@ -196,99 +156,149 @@ export class DashboardComponent implements OnInit		 {
 		}
 	  });
 	}
-	
-	
-	
-	prepararGraficoFormatos(formatosObj: any) {
-	  // 1. Convertimos el objeto {"CSV": 2} en una lista [{display_name: 'CSV', count: 2}]
-	  // Esto lo hace compatible con tu lógica anterior
-	  const items = Object.entries(formatosObj).map(([key, value]) => ({
-		display_name: key,
-		count: value as number
-	  }));
 
-	  // 2. Calculamos el total (ahora .reduce sí funcionará porque 'items' es una lista)
-	  const total = items.reduce((acc, item) => acc + item.count, 0);
-	  
-	  // 3. Mantenemos tu lógica original de mapeo y colores
-	  this.formatosGrafico = items.map(item => ({
-		nombre: item.display_name,
-		cantidad: item.count,
-		porcentaje: total > 0 ? (item.count / total) * 100 : 0,
-		color: this.obtenerColorFormat(item.display_name)
-	  }))
-	  .sort((a, b) => b.cantidad - a.cantidad) // Ordenamos de mayor a menor
-	  .slice(0, 5); // Tomamos los 5 principales
+	prepararGraficoGruposResource_api(formatosObj: any[]) {		
+		// "stats_tematicas": [{"titulo": "Educación","total_datasets": 1,"total_recursos": 1,"url_ver_mas": "/group/educacion"}]
+		this.stats_tematicas = formatosObj.map(item => ({
+			titulo: item.titulo,
+			total_datasets: item.total_datasets,
+			total_recursos: item.total_recursos,
+			url_ver_mas: item.url_ver_mas
+		}));		
+
 	}
 
+	prepararGraficoFormatos_api(formatosObj: any[]) {
+	 
+		// Esto lo hace compatible con tu lógica anterior
+		// 1. Extraemos solo las categorías reales (ej: 'salud'), ignorando la meta-llave 'Total_Datasets'
+		/*const items = Object.entries(formatosObj)
+			.filter(([key]) => key !== 'Total_Datasets') 
+			.map(([key, value]) => ({
+				display_name: key,
+				count: value as number
+			}));*/
 
+		// 1. Capturamos el valor del objeto 'total_recursos'
+    	const objetoTotal = formatosObj.find(item => item.nombre === 'total_recursos');
+    	const totalRecursosGlobal = objetoTotal ? objetoTotal.cantidad : 0;	
 
-	
-	
-	prepararGraficoFormatosold(items: any[]) {
-	  // 1. Ordenamos por cantidad
-	  const total = items.reduce((acc, item) => acc + item.count, 0);
-	  
-	  this.formatosGrafico = items.map(item => ({
-		nombre: item.display_name,
-		cantidad: item.count,
-		porcentaje: (item.count / total) * 100,
-		color: this.obtenerColorFormat(item.display_name)
-	  })).slice(0, 5); // Tomamos los 5 principales
+		// 2. Calculamos el total (ahora .reduce sí funcionará porque 'items' es una lista)
+		const total = formatosObj.length;
+		
+		// 3. Mantenemos tu lógica original de mapeo y colores
+		this.formatosGrafico = formatosObj
+			.filter(item => item.nombre !== 'total_recursos' && item.nombre) 
+			.map(item => ({
+				nombre: item.nombre,
+				cantidad: item.cantidad,
+				porcentaje: total > 0 ? (item.cantidad / totalRecursosGlobal) * 100 : 0,
+				color: this.obtenerColorFormat(item.nombre ? item.nombre.toString().toUpperCase().trim() : '')
+			}))
+			.sort((a, b) => b.cantidad - a.cantidad) // Ordenamos de mayor a menor
+			.slice(0, 5); // Tomamos los 5 principales
 	}
-	
+
 	obtenerColorFormat(fmt: string) {
-	  const colors: any = { 'CSV': '#2ecc71', 'PDF': '#e74c3c', 'JSON': '#f1c40f', 'XLS': '#3498db' };
-	  return colors[fmt.toUpperCase()] || '#95a5a6';
+		// Usamos el string limpio para buscar en el diccionario
+		const colors: any = { 
+			'CSV': '#2ecc71', 
+			'PDF': '#e74c3c', 
+			'JSON': '#f1c40f', 
+			'XLS': '#3498db',
+			'XLSX': '#3498db',
+			'GEOJSON': '#9b59b6' 
+		};
+		return colors[fmt] || '#95a5a6';
 	}
 	
-	// 2. La nueva (para comparar organizaciones)
-	prepararGraficoOrganizaciones(items: any[]) {
-	  // Calculamos el máximo para que la barra más larga sea el 100% visual
-	  const maxVal = Math.max(...items.map(i => i.count)) || 1;
-	  
-	  this.recursosPorOrg = items.map(item => ({
-		nombre: item.display_name,
-		total: item.count,
-		ancho: (item.count / maxVal) * 100
-	  })).slice(0, 5);
+	prepararGraficoGrupos_api(formatosObj: any) {
+		// "grupos_raw": {"Total_Datasets": 2, "educacion": 1,"salud": 1 }, Tipo de variable'
+		const items = Object.entries(formatosObj)
+			.filter(([key]) => key !== 'Total_Datasets') 
+			.map(([key, value]) => ({
+				display_name: key,
+				count: value as number
+			}));
+
+		// 2. Tomamos el total directamente de la llave que ya viene en el objeto
+		const totalGlobal = formatosObj.Total_Datasets || 0;
+
+		// 3. Mapeamos para el gráfico y el HTML
+		this.formatosGrupos = items.map(item => ({
+			nombre: item.display_name,
+			cantidad: item.count,
+			totalGrupos: totalGlobal,
+			porcentaje: totalGlobal > 0 ? (item.count / totalGlobal) * 100 : 0
+		}));
+
+		// 4. Actualizamos las estadísticas globales para tu HTML
+		const sumaAsociados = items.reduce((acc, item) => acc + item.count, 0);
+		
+		this.estadisticaGrupos = {
+			total: totalGlobal,
+			asociados: sumaAsociados,
+			sinAsociar: totalGlobal - sumaAsociados,
+			porcentaje: totalGlobal > 0 ? (sumaAsociados / totalGlobal) * 100 : 0
+		};
+
+		console.log('Estadísticas Facet Grups procesadas:', this.estadisticaGrupos);
 	}
+
+
+	prepararGraficoOrganizaciones_api(formatosObj: any) {
+
+	  	const items = Object.entries(formatosObj)
+			.filter(([key]) => key !== 'Total_Datasets') 
+			.map(([key, value]) => ({
+				display_name: key,
+				count: value as number
+			}));
+
+		// Calculamos el máximo para que la barra más larga sea el 100% visual
+		const maxVal = Math.max(...items.map(i => i.count)) || 1;
+		
+		this.recursosPorOrg = items.map(item => ({
+			nombre: item.display_name,
+			total: item.count,
+			ancho: (item.count / maxVal) * 100
+		})).slice(0, 5);
+
+		console.log('Estadísticas Facet Organizacion procesadas:', this.recursosPorOrg);
+	}
+
 	
-	// buscador.component.ts
+	
+	
 
-	// Función para buscar específicamente los "huérfanos"
-	verListadoHuerfanos() {
-	  this.cargando = true;
-	  this.viendoHuerfanos = true;
-	  this.resultadosHuerfanos = []; // Limpieza inicial
+	
+
+
+	
+	verListadoHuerfanos_api(){
+
+		this.cargando = true;
+	    this.viendoHuerfanos = true;
+		this.resultadosHuerfanos = [];
+		const url = '/api/3/action/dataset_huerfanos';
 	  
-	  const headers = new HttpHeaders({
-		'Authorization': this.CKAN_TOKEN
-	  });
-	  
-	  const params = new HttpParams()
-		.set('rows', '100') // Subimos a 100 para ver más huérfanos de un golpe
-		.set('include_private', 'true')
-		// El signo menos (-) es el "NOT" en Solr (el buscador de CKAN)
-		.set('fq', '-groups:[* TO *]'); 
+		// Ya no necesitas params complejos, el backend ya sabe qué contar
+		this.http.get<any>(url).subscribe({
+			next: (response) => {
+				if (response) {
+					this.resultadosHuerfanos = response;
+				}
 
-	  // Filtro fq de CKAN para "Sin Grupos"
-	  //const url = `/api/3/action/package_search?rows=10&fq=-groups:[* TO *]&include_private=True`;
-	    const url = this.API_BASE;
-
-	  this.http.get<any>(url, { headers, params }).subscribe({
-		next: (res) => {
-		  if (res.success) {
-			this.resultadosHuerfanos = res.result.results;
-		  }
-		  this.cargando = false;
-		  this.cdr.detectChanges(); // <--- CRÍTICO para que el HTML despierte
-		},
-		error: () => {
-		  this.cargando = false;
-		  this.cdr.detectChanges();
-		}
-	  });
-	}
+				this.cargando = false;
+		  		this.cdr.detectChanges();
+			
+			},
+			error: (err) => {
+			console.error('Error al obtener métricas del dashboard:', err);
+			this.cargando = false;
+			this.cdr.detectChanges();
+			}
+		});
+	} 
 
 }

@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http';
 import { Subject, of } from 'rxjs';
 import { debounceTime, distinctUntilChanged, switchMap, tap, catchError, filter } from 'rxjs/operators';
 
-
+console.log("0. Archivo buscador.ts leído por el navegador"); // <-- Al principio del todo
 
 @Component({
   selector: 'app-buscador',
