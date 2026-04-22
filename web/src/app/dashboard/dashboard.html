@@ -192,5 +192,71 @@
 	</div>
 </div>	
 
+<div class="row mt-4">
+	<div class="col-md-6">
+		<div class="card-dashboard mt-4">
+			<div class="dashboard-grid">
+				<div *ngFor="let item of contador_dataset" class="kpi-card">
+					<span class="category">{{ item.package_name }}</span>
+					<div class="stats">
+					<div class="stat-item">
+						<label>Descargas</label>
+						<p class="value">{{ item.descargas | number }}</p>
+					</div>
+					<div class="stat-item">
+						<label>Vistas</label>
+						<p class="value">{{ item.visualizaciones | number }}</p>
+					</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row mt-4">
+	<div class="col-md-6">
+		<div class="card-dashboard mt-4">
+			<div class="dashboard-grid">
+				<div *ngFor="let item of contador_grupo" class="kpi-card">
+					<span class="category">{{ item.package_name }}</span>
+					<div class="stats">
+					<div class="stat-item">
+						<label>Descargas</label>
+						<p class="value">{{ item.descargas | number }}</p>
+					</div>
+					<div class="stat-item">
+						<label>Vistas</label>
+						<p class="value">{{ item.visualizaciones | number }}</p>
+					</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<div class="row mt-4">
+	<div class="col-md-6">
+		<div class="card-dashboard mt-4">
+			<div class="dashboard-grid">
+				<div *ngFor="let item of contador_dependencia" class="kpi-card">
+					<span class="category">{{ item.package_name }}</span>
+					<div class="stats">
+					<div class="stat-item">
+						<label>Descargas</label>
+						<p class="value">{{ item.descargas | number }}</p>
+					</div>
+					<div class="stat-item">
+						<label>Vistas</label>
+						<p class="value">{{ item.visualizaciones | number }}</p>
+					</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
 
 

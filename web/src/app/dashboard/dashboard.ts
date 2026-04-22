@@ -25,6 +25,9 @@ export class DashboardComponent implements OnInit		 {
 	public formatosGrafico: any[] = [];
 	public formatosGrupos : any[] = [];
 	public stats_tematicas: any[] = [];
+	public contador_dataset: any[] = [];
+	public contador_grupo: any[] = [];
+	public contador_dependencia: any[] = [];
 	public topGrupos: any[] = [];
 	public topOrganizaciones : any[] = [];
 	public recursosPorOrg: any[] = [];
@@ -51,6 +54,7 @@ export class DashboardComponent implements OnInit		 {
 	  privados: 0,
 	  porcentajePublico: 0
 	};
+
 	
 	ngOnInit() { // <--- Aquí es donde debe ir tu bloque try/catch
 		console.log("¡DashboardComponent Activo!"); 
@@ -145,6 +149,21 @@ export class DashboardComponent implements OnInit		 {
 			  this.prepararGraficoGruposResource_api(this.stats.stats_tematicas);
 			}
 
+            if (this.stats.consolidado_contador_dataset) {
+			  console.table("contador_organizaciones:",this.stats.consolidado_contador_dataset); 	
+			  this.prepararGraficoContadorDataset_api(this.stats.consolidado_contador_dataset);
+			}
+
+		    if (this.stats.consolidado_contador_grupos) {
+			  console.table("contador_organizaciones:",this.stats.consolidado_contador_grupos); 	
+			  this.prepararGraficoContadorGrupo_api(this.stats.consolidado_contador_grupos);
+			}
+
+			if (this.stats.consolidado_contador_organizaciones) {
+			  console.table("contador_organizaciones:",this.stats.consolidado_contador_organizaciones); 	
+			  this.prepararGraficoContadorDependencia_api(this.stats.consolidado_contador_organizaciones);
+			}
+
 		  }
 		  this.cargando = false;
 		  this.cdr.detectChanges();
@@ -155,6 +174,39 @@ export class DashboardComponent implements OnInit		 {
 		  this.cdr.detectChanges();
 		}
 	  });
+	}
+
+
+	prepararGraficoContadorDataset_api(formatosObj: any[]) {	
+		this.contador_dataset = formatosObj.map(item => ({
+			descargas: item.descargas,
+			package_id: item.package_id,
+			package_name: item.package_name,
+			visualizaciones: item.visualizaciones
+		}));
+		console.table("contador_dataset:",this.contador_dataset);
+	}
+
+
+	prepararGraficoContadorGrupo_api(formatosObj: any[]) {	
+		this.contador_grupo = formatosObj.map(item => ({
+			descargas: item.descargas,
+			package_id: "",
+			package_name: item.group_id,
+			visualizaciones: item.visualizaciones
+		}));
+		console.table("contador_grupo:",this.contador_grupo);
+	}
+
+
+	prepararGraficoContadorDependencia_api(formatosObj: any[]) {	
+		this.contador_dependencia = formatosObj.map(item => ({
+			descargas: item.descargas,
+			package_id: "",
+			package_name: item.org_id,
+			visualizaciones: item.visualizaciones
+		}));
+		console.table("contador_dependencia:",this.contador_dependencia);
 	}
 
 	prepararGraficoGruposResource_api(formatosObj: any[]) {		
