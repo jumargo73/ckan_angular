@@ -190,73 +190,120 @@
 			</div>
 		</div>
 	</div>
-</div>	
-
+</div>
 <div class="row mt-4">
-	<div class="col-md-6">
-		<div class="card-dashboard mt-4">
-			<div class="dashboard-grid">
-				<div *ngFor="let item of contador_dataset" class="kpi-card">
-					<span class="category">{{ item.package_name }}</span>
-					<div class="stats">
-					<div class="stat-item">
-						<label>Descargas</label>
-						<p class="value">{{ item.descargas | number }}</p>
+	<h3 style="justify-content:center">Metrica de Cargas y vistas por Dataset</h3>
+  	<div class="col-xl-3 col-md-6 mb-4" *ngFor="let item of contador_dataset">			
+    	<div class="card border-0 shadow-sm card-dashboard">
+			<div class="card-body p-4">
+				<!-- Encabezado: Nombre del paquete -->
+				<div class="d-flex align-items-center mb-3">
+					<div class="icon-shape bg-soft-primary text-primary me-3">
+						<i class="fa fa-folder-open"></i>
 					</div>
-					<div class="stat-item">
-						<label>Vistas</label>
-						<p class="value">{{ item.visualizaciones | number }}</p>
+					<h6 class="text-uppercase text-muted fw-bold m-0 small">{{ item.package_name }}</h6>
+				</div>
+
+				<!-- Métricas principales -->
+				<div class="row">
+					<div class="col-6 border-end">
+						<label class="text-xs text-muted mb-1 d-block text-uppercase">Descargas</label>
+						<div class="d-flex align-items-center">
+						<span class="h4 fw-bold mb-0">{{ item.descargas | number }}</span>
+						</div>
 					</div>
+					<div class="col-6 ps-3">
+						<label class="text-xs text-muted mb-1 d-block text-uppercase">Vistas</label>
+						<div class="d-flex align-items-center">
+						<span class="h4 fw-bold mb-0">{{ item.visualizaciones | number }}</span>
+						</div>
 					</div>
 				</div>
-			</div>
-		</div>
-	</div>
-</div>
 
-<div class="row mt-4">
-	<div class="col-md-6">
-		<div class="card-dashboard mt-4">
-			<div class="dashboard-grid">
-				<div *ngFor="let item of contador_grupo" class="kpi-card">
-					<span class="category">{{ item.package_name }}</span>
-					<div class="stats">
-					<div class="stat-item">
-						<label>Descargas</label>
-						<p class="value">{{ item.descargas | number }}</p>
-					</div>
-					<div class="stat-item">
-						<label>Vistas</label>
-						<p class="value">{{ item.visualizaciones | number }}</p>
-					</div>
-					</div>
+				<!-- Barra de progreso visual (opcional) -->
+				<div class="progress mt-3" style="height: 4px;">
+					<div class="progress-bar bg-primary" role="progressbar" 
+						[style.width.%]="(item.descargas / (item.visualizaciones || 1)) * 100"></div>
 				</div>
-			</div>
-		</div>
-	</div>
+		    </div>
+        </div>
+    </div>
 </div>
-
 <div class="row mt-4">
-	<div class="col-md-6">
-		<div class="card-dashboard mt-4">
-			<div class="dashboard-grid">
-				<div *ngFor="let item of contador_dependencia" class="kpi-card">
-					<span class="category">{{ item.package_name }}</span>
-					<div class="stats">
-					<div class="stat-item">
-						<label>Descargas</label>
-						<p class="value">{{ item.descargas | number }}</p>
-					</div>
-					<div class="stat-item">
-						<label>Vistas</label>
-						<p class="value">{{ item.visualizaciones | number }}</p>
-					</div>
-					</div>
-				</div>
-			</div>
-		</div>
-	</div>
-</div>
+	<h3 style="justify-content:center">Metrica de Cargas y vistas por Tematica</h3>	
+  <div class="col-xl-3 col-md-6 mb-4" *ngFor="let item of contador_grupo">
+    <div class="card border-0 shadow-sm card-dashboard">
+      <div class="card-body p-4">
+        <!-- Encabezado: Nombre del paquete -->
+        <div class="d-flex align-items-center mb-3">
+          <div class="icon-shape bg-soft-primary text-primary me-3">
+            <i class="fa fa-folder-open"></i>
+          </div>
+          <h6 class="text-uppercase text-muted fw-bold m-0 small">{{ item.package_name }}</h6>
+        </div>
 
+        <!-- Métricas principales -->
+        <div class="row">
+          <div class="col-6 border-end">
+            <label class="text-xs text-muted mb-1 d-block text-uppercase">Descargas</label>
+            <div class="d-flex align-items-center">
+              <span class="h4 fw-bold mb-0">{{ item.descargas | number }}</span>
+            </div>
+          </div>
+          <div class="col-6 ps-3">
+            <label class="text-xs text-muted mb-1 d-block text-uppercase">Vistas</label>
+            <div class="d-flex align-items-center">
+              <span class="h4 fw-bold mb-0">{{ item.visualizaciones | number }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra de progreso visual (opcional) -->
+        <div class="progress mt-3" style="height: 4px;">
+          <div class="progress-bar bg-primary" role="progressbar" 
+               [style.width.%]="(item.descargas / (item.visualizaciones || 1)) * 100"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="row mt-4">
+  <h3 style="justify-content:center">Metrica de Cargas y vistas por Dependencia</h3>		
+  <div class="col-xl-3 col-md-6 mb-4" *ngFor="let item of contador_dependencia">
+    <div class="card border-0 shadow-sm card-dashboard">
+      <div class="card-body p-4">
+        <!-- Encabezado: Nombre del paquete -->
+        <div class="d-flex align-items-center mb-3">
+          <div class="icon-shape bg-soft-primary text-primary me-3">
+            <i class="fa fa-folder-open"></i>
+          </div>
+          <h6 class="text-uppercase text-muted fw-bold m-0 small">{{ item.package_name }}</h6>
+        </div>
+
+        <!-- Métricas principales -->
+        <div class="row">
+          <div class="col-6 border-end">
+            <label class="text-xs text-muted mb-1 d-block text-uppercase">Descargas</label>
+            <div class="d-flex align-items-center">
+              <span class="h4 fw-bold mb-0">{{ item.descargas | number }}</span>
+            </div>
+          </div>
+          <div class="col-6 ps-3">
+            <label class="text-xs text-muted mb-1 d-block text-uppercase">Vistas</label>
+            <div class="d-flex align-items-center">
+              <span class="h4 fw-bold mb-0">{{ item.visualizaciones | number }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Barra de progreso visual (opcional) -->
+        <div class="progress mt-3" style="height: 4px;">
+          <div class="progress-bar bg-primary" role="progressbar" 
+               [style.width.%]="(item.descargas / (item.visualizaciones || 1)) * 100"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 

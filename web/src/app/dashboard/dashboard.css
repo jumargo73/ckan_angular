@@ -212,3 +212,37 @@
 }
 
 .btn-ver-mas:hover { color: #0056b3; }
+
+
+.card-dashboard {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  border-radius: 12px;
+}
+
+.card-dashboard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+}
+
+.icon-shape {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.bg-soft-primary {
+  background-color: #e7f1ff; /* Color suave para el fondo del icono */
+}
+
+.text-xs {
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+.fw-bold {
+  color: #334155; /* Un gris oscuro más profesional */
+}
+
